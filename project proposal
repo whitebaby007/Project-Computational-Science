@@ -2,13 +2,22 @@
 Project title: Optimizing COVID-19 Prevention Strategies through Cellular Automata Modeling
 
 Scientific question:
-The COVID-19 pandemic has posed unprecedented challenges to public health systems worldwide. Determining the most effective prevention strategy with minimal mortality is crucial. This project aims to use cellular automata, a discrete computational modeling method, to simulate various non-pharmaceutical interventions (NPIs) in a virtual population. Key research questions include: How do different combinations of NPIs affect mortality rates? Which individual or combined interventions offer the best outcomes concerning reducing fatalities? The hypotheses are that layered interventions will be more effective than single strategies and that early implementation of aggressive NPIs will result in the lowest mortality. 
+The COVID-19 pandemic has posed unprecedented challenges to public health systems worldwide. 
+Determining the most effective prevention strategy with minimal mortality is crucial. 
+This project aims to use cellular automata, a discrete computational modeling method, to simulate various non-pharmaceutical interventions (NPIs) in a virtual population. 
+Key research questions include: How do different combinations of NPIs affect mortality rates? Which individual or combined interventions offer the best outcomes concerning reducing fatalities? 
+The hypotheses are that layered interventions will be more effective than single strategies and that early implementation of aggressive NPIs will result in the lowest mortality. 
 
 Numerical method:
-We will employ a two-dimensional cellular automata model with cells representing individuals in various states: susceptible, exposed, infectious, and recovered. The model will incorporate stochastic elements to simulate the randomness of disease spread and will be calibrated using real-world data. Transition rules will be based on probabilities reflecting the efficacy of NPIs such as social distancing, mask usage, and vaccination rates. Validation of the model will be achieved by comparing simulation outcomes with actual epidemiological data on COVID-19 mortality rates.
+We will employ a two-dimensional cellular automata model with cells representing individuals in various states: susceptible, exposed, infectious, and recovered. 
+The model will incorporate stochastic elements to simulate the randomness of disease spread and will be calibrated using real-world data. 
+Transition rules will be based on probabilities reflecting the efficacy of NPIs such as social distancing, mask usage, and vaccination rates. 
+Validation of the model will be achieved by comparing simulation outcomes with actual epidemiological data on COVID-19 mortality rates.
 
 Provisioned tools:
-The project will utilize Python for coding the cellular automata, leveraging libraries such as NumPy for numerical operations and Matplotlib for visualization. Version control will be managed through Git, with a repository hosted on GitHub to facilitate collaboration. Data analysis will be supported by the Pandas library, and Jupyter Notebooks will be used for interactive development and sharing of results among team members.
+The project will utilize Python for coding the cellular automata, leveraging libraries such as NumPy for numerical operations and Matplotlib for visualization. 
+Version control will be managed through Git, with a repository hosted on GitHub to facilitate collaboration. 
+Data analysis will be supported by the Pandas library, and Jupyter Notebooks will be used for interactive development and sharing of results among team members.
 
 
 
