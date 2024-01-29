@@ -11,7 +11,7 @@ INFECTED = 'I'
 IMMUNE = 'M'
 DEAD = 'D'
 class Model:
-    def __init__(self, width=90, height=90, nHuman=1, nMovehuman=1000, initHumanInfected=0, initMovehumanInfected=0.001,
+    def __init__(self, width=90, height=90, nHuman=100, nMovehuman=100, initHumanInfected=0.01, initMovehumanInfected=0.01,
                  humanInfectionProb=1, deathrate=0.0009, immune=0.32, image_path='us.jpg'):
 
         # Process the image and create a binary grid
@@ -109,12 +109,22 @@ class Model:
         occupied_positions = set((h.position[0], h.position[1]) for h in self.humanPopulation + self.movingHumanPopulation)
 
         for i, m in enumerate(self.movingHumanPopulation):
-            m.move(sim.grid, sim.height, sim.width)
-            for h in self.humanPopulation:
+            m.move(sim.grid, sim.height, sim.width)  # Moving humans move first
+
+    # Check for infection against all non-moving humans
+            for j, h in enumerate(self.humanPopulation):
                 if m.is_close_to(h) and m.state == 'I' and h.state == 'S':
                     if np.random.uniform() <= self.humanInfectionProb:
                         h.state = 'I'
                         self.infectedCount += 1
+
+    # Check for infection against all other moving humans
+            for k, other_m in enumerate(self.movingHumanPopulation):
+                if i != k and m.is_close_to(other_m) and m.state == 'I' and other_m.state == 'S':
+                    if np.random.uniform() <= self.humanInfectionProb:
+                        other_m.state = 'I'
+                        self.infectedCount += 1
+
 
     # This check should be within the same loop that defines 'm'
 
@@ -168,7 +178,7 @@ class MovingHuman:
 
     def is_close_to(self, other_human):
         # Determine if another human is within the infection radius
-        infection_radius = 2  # Define how close is 'close'
+        infection_radius = 1  # Define how close is 'close'
         return np.linalg.norm(np.array(self.position) - np.array(other_human.position)) < infection_radius
 
     def move(self, grid, height, width):
@@ -230,7 +240,7 @@ class Human:
         self.immunity_prob = 0.32
 
     def is_close_to(self, other_human):
-        infection_radius = 5  # Define how close is 'close'
+        infection_radius = 1  # Define how close is 'close'
         return np.linalg.norm(np.array(self.position) - np.array(other_human.position)) < infection_radius
 
     def update(self, deathrate):
