@@ -211,8 +211,8 @@ class MovingHuman:
         self.deathrate=1
     def is_close_to(self, other_human):
         # Determine if another human is within the infection radius
-        infection_radius = 2  # Define how close is 'close'
-        return np.linalg.norm(np.array(self.position) - np.array(other_human.position)) < infection_radius
+        infection_radius = 2.0  # Define how close is 'close'
+        return float(np.linalg.norm(np.array(self.position) - np.array(other_human.position))) < infection_radius
 
     def move(self, grid, height, width):
         # Attempt to move the human to a black cell within the specified number of tries
@@ -260,9 +260,10 @@ class Human:
         self.infection_timer = 0
         self.immunity_prob=0.31
         self.deathrate=1
+
     def is_close_to(self, other_human):
-        infection_radius = 2  # Define how close is 'close'
-        return np.linalg.norm(np.array(self.position) - np.array(other_human.position)) < infection_radius
+        infection_radius = 2.0  # Define how close is 'close'
+        return float(np.linalg.norm(np.array(self.position) - np.array(other_human.position))) < infection_radius
 
     def update(self, grid, movingHumanPopulation, deathrate, infection_probability):
         became_immune = False
