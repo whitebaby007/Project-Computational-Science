@@ -280,11 +280,8 @@ if __name__ == '__main__':
     death_counts = []
 
     file = open('simulation.csv', 'w')
-    sim = Model(width=894, height=565, image_path='us.jpg')  # Specify the path to your image
-
-    # No need to call load_boundary_from_image if you're not using boundaries
-    # sim.load_boundary_from_image()  # Load the boundary from the image
-
+    sim = Model(width=894, height=565, image_path='us.jpg')  
+   
     # Pass the binary grid to Visualization
     vis = covid_visualize.Visualization(sim.height, sim.width, sim.grid)
 
