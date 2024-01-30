@@ -12,13 +12,13 @@ IMMUNE = 'M'
 DEAD = 'D'
 class Model:
     def __init__(self, width=90, height=90, nHuman=1000, nMovehuman=1000, initHumanInfected=0.01, initMovehumanInfected=0.01,
-                 humanInfectionProb=0.75, deathrate=1, immune=0.5, image_path='us.jpg'):
+                 humanInfectionProb=0.75, deathrate=1, immune=0.5, image_path='US_Population.png'):
 
         # Process the image and create a binary grid
-        original_image = Image.open('us.jpg')
+        original_image = Image.open('US_Population.png')
         resized_image = original_image.copy().resize((178, 112))
         gray_image = resized_image.convert('L')
-        binary_image = gray_image.point(lambda x: 0 if x < 200 else 1, '1')
+        binary_image = gray_image.point(lambda x: 1 if x < 40 else 0, '1')
         self.grid = np.array(binary_image)
 
         # Use the binary grid dimensions to set the model width and height
