@@ -11,12 +11,12 @@ INFECTED = 'I'
 IMMUNE = 'M'
 DEAD = 'D'
 class Model:
-    def __init__(self, width=90, height=90, nHuman=10, nMovehuman=1, initHumanInfected=0.1, initMovehumanInfected=0.1,
-                 humanInfectionProb=1, deathrate=0.1, immune=0.32, image_path='us.jpg'):
+    def __init__(self, width=90, height=90, nHuman=1000, nMovehuman=1000, initHumanInfected=0.01, initMovehumanInfected=0.01,
+                 humanInfectionProb=0.75, deathrate=1, immune=0.5, image_path='us.jpg'):
 
         # Process the image and create a binary grid
         original_image = Image.open('us.jpg')
-        resized_image = original_image.copy().resize((89, 56))
+        resized_image = original_image.copy().resize((178, 112))
         gray_image = resized_image.convert('L')
         binary_image = gray_image.point(lambda x: 0 if x < 200 else 1, '1')
         self.grid = np.array(binary_image)
@@ -52,8 +52,12 @@ class Model:
             if ((new_x, new_y) not in occupied_positions and self.grid[new_y, new_x] == 0):
                 occupied_positions.add((new_x, new_y))  # Mark the position as occupied
                 break
-        population_list[index] = Human(new_x, new_y, 'S')  # Replace with a new susceptible human
-        self.nHuman += 1
+
+    # Check if we are replacing a MovingHuman or a Human
+        if isinstance(population_list[index], MovingHuman):
+            population_list[index] = MovingHuman(new_x, new_y, 'S')  # Replace with a new susceptible moving human
+        else:
+            population_list[index] = Human(new_x, new_y, 'S')
     def set_human_population(self, initHumanInfected):
         humanPopulation = []
         occupied_positions = set()
@@ -101,7 +105,6 @@ class Model:
 
 
     def update(self):
-
         initial_infected_count = self.infectedCount
         initial_death_count = self.deathCount
         initial_immune_count = self.immuneCount
@@ -110,10 +113,8 @@ class Model:
         new_immunities = 0
     # Set of occupied positions to ensure no overlap when placing new humans
         occupied_positions = set((h.position[0], h.position[1]) for h in self.humanPopulation + self.movingHumanPopulation)
-
         for i, m in enumerate(self.movingHumanPopulation):
             m.move(self.grid, self.height, self.width)  # Moving humans move first
-
             # Check for infection against all non-moving humans
             if m.state == 'I':
                 for j, h in enumerate(self.humanPopulation):
@@ -121,25 +122,21 @@ class Model:
                         if np.random.uniform() <= self.humanInfectionProb:
                             h.state = 'I'
                             new_infections += 1
-
             # Check for infection against all other moving humans
             if m.state == 'I':
                 for k, other_m in enumerate(self.movingHumanPopulation):
                     if i != k and other_m.state == 'S' and m.is_close_to(other_m):
                         if np.random.uniform() <= self.humanInfectionProb:
                             other_m.state = 'I'
-                            self.infectedCount += 1
-
+                            new_infections += 1
             # Apply updates for this moving human (death or immunity)
             became_immune = m.update(self.grid, self.movingHumanPopulation, self.deathrate, self.humanInfectionProb)
             if became_immune:
                 new_immunities += 1  # Increment the immune count if the individual became immune
-
             # Replace deceased moving humans
             if m.state == 'D':
                 self.replace_deceased_human(i, self.movingHumanPopulation, occupied_positions)
                 new_deaths += 1
-
         # Update for non-moving humans
         for j, h in enumerate(self.humanPopulation):
             if h.state == 'I':
@@ -147,35 +144,32 @@ class Model:
                     if j != k and other_h.state == 'S' and h.is_close_to(other_h):
                         if np.random.uniform() <= self.humanInfectionProb:
                             other_h.state = 'I'
-                            self.infectedCount += 1
-
+                            new_infections += 1
     # Check for infection against all moving humans
             if h.state == 'I':
                 for k, other_m in enumerate(self.movingHumanPopulation):
                     if other_m.state == 'S' and h.is_close_to(other_m):
                         if np.random.uniform() <= self.humanInfectionProb:
                             other_m.state = 'I'
-                            self.infectedCount += 1
-
+                            new_infections += 1
             became_immune = h.update(self.grid, self.humanPopulation, self.deathrate, self.humanInfectionProb)
             if became_immune:
                 new_immunities += 1  # Increment the immune count if the individual became immune
-
             # Replace deceased non-moving humans
             if h.state == 'D':
                 self.replace_deceased_human(j, self.humanPopulation, occupied_positions)
                 new_deaths += 1
-
         # Update the model's counts based on this timestep's events
         total_susceptible = sum(1 for human in self.humanPopulation + self.movingHumanPopulation if human.state == 'S')
         total_infected = sum(1 for human in self.humanPopulation + self.movingHumanPopulation if human.state == 'I')
-        total_dead = sum(1 for human in self.humanPopulation + self.movingHumanPopulation if human.state == 'D')
         total_immune = sum(1 for human in self.humanPopulation + self.movingHumanPopulation if human.state == 'M')
 
-        # Update the model's counts based on this timestep's events
+# Since you're removing the dead, you don't need to count 'D' states at each step.
+# The deathCount variable should already be incrementing properly in your code when someone dies.
+
         self.susceptibleCount = total_susceptible
         self.infectedCount = total_infected
-        self.deathCount = total_dead
+# self.deathCount is already updated elsewhere in your code whenever someone dies
         self.immuneCount = total_immune
 
 
@@ -187,14 +181,14 @@ class Model:
 class MovingHuman:
 
     MAX_AGE = 500
-    MIN_DURATION_BEFORE_DEATH = 100
+    MIN_DURATION_BEFORE_DEATH = 21
     def __init__(self, x, y, state='S'):
         # Initialize the moving human with a position and infection state
         self.position = [x, y]
         self.state = state  # 'S' for susceptible, 'I' for infected, 'M' for immune
         self.infection_timer = 0
-        self.immunity_prob = 0.01
-
+        self.immunity_prob =0.31
+        self.deathrate=1
     def is_close_to(self, other_human):
         # Determine if another human is within the infection radius
         infection_radius = 2  # Define how close is 'close'
@@ -228,26 +222,22 @@ class MovingHuman:
                 elif np.random.rand() < self.immunity_prob:
                     self.state = 'M'
                     became_immune = True
-
-            # Infect other humans if this human is infected
-
-        if np.random.rand() < self.immunity_prob:
-                self.state = 'M'
-                became_immune = True
+                else:
+            # Explicitly stating that the person remains infected
+                    self.state = 'I'
 
         return became_immune
 
 class Human:
 
-    MIN_DURATION_BEFORE_DEATH = 100
+    MIN_DURATION_BEFORE_DEATH = 21
 
     def __init__(self, x, y, state='S'):
         self.position = [x, y]
         self.state = state
         self.infection_timer = 0
-        self.immunity_timer = 0
-        self.immunity_prob = 0.01
-
+        self.immunity_prob=0.31
+        self.deathrate=1
     def is_close_to(self, other_human):
         infection_radius = 2  # Define how close is 'close'
         return np.linalg.norm(np.array(self.position) - np.array(other_human.position)) < infection_radius
@@ -263,10 +253,9 @@ class Human:
                 elif np.random.rand() < self.immunity_prob:
                     self.state = 'M'
                     became_immune = True
+                else:
+                    self.state ='I'
 
-        if np.random.rand() < self.immunity_prob:
-                self.state = 'M'
-                became_immune = True
 
         return became_immune
 
@@ -274,7 +263,7 @@ class Human:
 
 if __name__ == '__main__':
     # Simulation parameters
-    timeSteps = 500
+    timeSteps = 200
     t = 0
     plotData = True
 
@@ -297,7 +286,7 @@ if __name__ == '__main__':
     print('Starting simulation')
     while t < timeSteps:
         susceptible, infected, immune, dead = sim.update()
-        line = f"{t}, {susceptible}, {infected}, {immune}, {dead}\n"
+        line = f"{t}, {susceptible}, {infected}, {dead}, {immune}\n"
         file.write(line)
 
         # Store the data for plotting
