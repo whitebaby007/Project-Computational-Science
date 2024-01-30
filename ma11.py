@@ -10,9 +10,11 @@ SUSCEPTIBLE = 'S'
 INFECTED = 'I'
 IMMUNE = 'M'
 DEAD = 'D'
+
+
 class Model:
     def __init__(self, width=90, height=60, nHuman=300, nMovehuman=300, initHumanInfected=0.1, initMovehumanInfected=0.1,
-                 humanInfectionProb=0.75, deathrate=0., immune=0.5, image_path='US_Population.png'):
+                 humanInfectionProb=0.75, deathrate=0.2, immune=0.5, image_path='US_Population.png'):
 
         # Process the image and create a binary grid
         original_image = Image.open('US_Population.png')
@@ -58,6 +60,9 @@ class Model:
             population_list[index] = MovingHuman(new_x, new_y, 'S')  # Replace with a new susceptible moving human
         else:
             population_list[index] = Human(new_x, new_y, 'S')
+
+
+
     def set_human_population(self, initHumanInfected):
         humanPopulation = []
         occupied_positions = set()
@@ -111,7 +116,9 @@ class Model:
         new_infections = 0
         new_deaths = 0
         new_immunities = 0
-    # Set of occupied positions to ensure no overlap when placing new humans
+
+
+        # Set of occupied positions to ensure no overlap when placing new humans
         occupied_positions = set((h.position[0], h.position[1]) for h in self.humanPopulation + self.movingHumanPopulation)
         for i, m in enumerate(self.movingHumanPopulation):
             m.move(self.grid, self.height, self.width)  # Moving humans move first
@@ -122,6 +129,8 @@ class Model:
                         if np.random.uniform() <= self.humanInfectionProb:
                             h.state = 'I'
                             new_infections += 1
+
+
             # Check for infection against all other moving humans
             if m.state == 'I':
                 for k, other_m in enumerate(self.movingHumanPopulation):
@@ -129,14 +138,19 @@ class Model:
                         if np.random.uniform() <= self.humanInfectionProb:
                             other_m.state = 'I'
                             new_infections += 1
+
+
             # Apply updates for this moving human (death or immunity)
             became_immune = m.update(self.grid, self.movingHumanPopulation, self.deathrate, self.humanInfectionProb)
             if became_immune:
                 new_immunities += 1  # Increment the immune count if the individual became immune
+
             # Replace deceased moving humans
             if m.state == 'D':
                 self.replace_deceased_human(i, self.movingHumanPopulation, occupied_positions)
                 new_deaths += 1
+
+
         # Update for non-moving humans
         for j, h in enumerate(self.humanPopulation):
             if h.state == 'I':
@@ -145,6 +159,8 @@ class Model:
                         if np.random.uniform() <= self.humanInfectionProb:
                             other_h.state = 'I'
                             new_infections += 1
+
+
     # Check for infection against all moving humans
             if h.state == 'I':
                 for k, other_m in enumerate(self.movingHumanPopulation):
@@ -159,21 +175,25 @@ class Model:
             if h.state == 'D':
                 self.replace_deceased_human(j, self.humanPopulation, occupied_positions)
                 new_deaths += 1
+
+
         # Update the model's counts based on this timestep's events
         total_susceptible = sum(1 for human in self.humanPopulation + self.movingHumanPopulation if human.state == 'S')
         total_infected = sum(1 for human in self.humanPopulation + self.movingHumanPopulation if human.state == 'I')
         total_immune = sum(1 for human in self.humanPopulation + self.movingHumanPopulation if human.state == 'M')
 
-# Since you're removing the dead, you don't need to count 'D' states at each step.
-# The deathCount variable should already be incrementing properly in your code when someone dies.
+
+
+        # Since you're removing the dead, you don't need to count 'D' states at each step.
+        # The deathCount variable should already be incrementing properly in your code when someone dies.
 
         self.susceptibleCount = total_susceptible
         self.infectedCount = total_infected
-# self.deathCount is already updated elsewhere in your code whenever someone dies
+        # self.deathCount is already updated elsewhere in your code whenever someone dies
         self.immuneCount = total_immune
 
 
-        return self.susceptibleCount, self.infectedCount, self.deathCount, self.immuneCount
+        return self.susceptibleCount, self.infectedCount, self.immuneCount,self.deathCount
 
 
 
@@ -228,6 +248,8 @@ class MovingHuman:
 
         return became_immune
 
+
+
 class Human:
 
     MIN_DURATION_BEFORE_DEATH = 21
@@ -261,6 +283,7 @@ class Human:
 
 
 
+
 if __name__ == '__main__':
     # Simulation parameters
     timeSteps = 200
@@ -275,6 +298,7 @@ if __name__ == '__main__':
     infected_counts = []
     immune_counts = []
     death_counts = []
+
 
     # Open the file to write simulation data
     file = open('simulation.csv', 'w')
