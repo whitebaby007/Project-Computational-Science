@@ -102,9 +102,6 @@ class Model:
 
 
 
-
-
-
     def update(self):
         initial_infected_count = self.infectedCount
         initial_death_count = self.deathCount
@@ -116,10 +113,12 @@ class Model:
 
         # Set of occupied positions to ensure no overlap when placing new humans
         occupied_positions = set((h.position[0], h.position[1]) for h in self.humanPopulation + self.movingHumanPopulation)
+        
+        #Start iteration for infection
         for i, m in enumerate(self.movingHumanPopulation):
             m.move(self.grid, self.height, self.width)  # Moving humans move first
             
-            # Check for infection against all non-moving humans
+            # Infection all non-moving humans
             if m.state == 'I':
                 for j, h in enumerate(self.humanPopulation):
                     if h.state == 'S' and m.is_close_to(h) and m.state == 'I':
@@ -138,6 +137,7 @@ class Model:
 
 
             # Apply updates for this moving human (death or immunity)
+            #Count Immunes
             became_immune = m.update(self.grid, self.movingHumanPopulation, self.deathrate, self.humanInfectionProb)
             if became_immune:
                 new_immunities += 1  # Increment the immune count if the individual became immune
