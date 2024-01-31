@@ -1,20 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import covid_visualize
+import Human
+import MovingHuman
 import cv2
 from PIL import Image
 
-
-
-SUSCEPTIBLE = 'S'
-INFECTED = 'I'
-IMMUNE = 'M'
-DEAD = 'D'
-
-
 class Model:
     def __init__(self, width=90, height=60, nHuman=300, nMovehuman=300, initHumanInfected=0.1, initMovehumanInfected=0.1,
-                 humanInfectionProb=0.75, deathrate=0.2, immune=0.5, image_path='US_Population.png'):
+                 humanInfectionProb=0.75, InfectionProb_Vaccinated = 0.4, deathrate=0.2, immune=0.5,  image_path='US_Population.png'):
 
         # Process the image and create a binary grid
         original_image = Image.open('US_Population.png')
@@ -29,8 +23,10 @@ class Model:
         self.nHuman = nHuman
         self.nMovehuman = nMovehuman
         self.humanInfectionProb = humanInfectionProb
+        self.InfectionProb_Vaccinated = InfectionProb_Vaccinated
         self.deathrate = deathrate
         self.immunity_prob = immune
+        
 
         self.immuneCount = 0  # Add this attribute to track the immune count
         self.immuneCountsOverTime = []
@@ -56,10 +52,10 @@ class Model:
                 break
 
     # Check if we are replacing a MovingHuman or a Human
-        if isinstance(population_list[index], MovingHuman):
-            population_list[index] = MovingHuman(new_x, new_y, 'S')  # Replace with a new susceptible moving human
+        if isinstance(population_list[index], MovingHuman.MovingHuman):
+            population_list[index] = MovingHuman.MovingHuman(new_x, new_y, 'S')  # Replace with a new susceptible moving human
         else:
-            population_list[index] = Human(new_x, new_y, 'S')
+            population_list[index] = Human.Human(new_x, new_y, 'S')
 
 
 
@@ -80,7 +76,7 @@ class Model:
             # Determine infection state based on initial infected ratio
             state = 'I' if (j / self.nHuman) <= initHumanInfected else 'S'
 
-            humanPopulation.append(Human(x, y, state))
+            humanPopulation.append(Human.Human(x, y, state))
 
         return humanPopulation
 
@@ -100,7 +96,7 @@ class Model:
 
             state = 'I' if i < self.nMovehuman * initMovehumanInfected else 'S'
 
-            movingHumanPopulation.append(MovingHuman(x, y, state))
+            movingHumanPopulation.append(MovingHuman.MovingHuman(x, y, state))
 
         return movingHumanPopulation
 
@@ -122,6 +118,7 @@ class Model:
         occupied_positions = set((h.position[0], h.position[1]) for h in self.humanPopulation + self.movingHumanPopulation)
         for i, m in enumerate(self.movingHumanPopulation):
             m.move(self.grid, self.height, self.width)  # Moving humans move first
+            
             # Check for infection against all non-moving humans
             if m.state == 'I':
                 for j, h in enumerate(self.humanPopulation):
@@ -161,7 +158,7 @@ class Model:
                             new_infections += 1
 
 
-    # Check for infection against all moving humans
+            # Check for infection against all moving humans
             if h.state == 'I':
                 for k, other_m in enumerate(self.movingHumanPopulation):
                     if other_m.state == 'S' and h.is_close_to(other_m):
@@ -194,147 +191,3 @@ class Model:
 
 
         return self.susceptibleCount, self.infectedCount, self.immuneCount,self.deathCount
-
-
-
-
-class MovingHuman:
-
-    MAX_AGE = 500
-    MIN_DURATION_BEFORE_DEATH = 21
-    def __init__(self, x, y, state='S'):
-        # Initialize the moving human with a position and infection state
-        self.position = [x, y]
-        self.state = state  # 'S' for susceptible, 'I' for infected, 'M' for immune
-        self.infection_timer = 0
-        self.immunity_prob =0.31
-        self.deathrate=1
-    def is_close_to(self, other_human):
-        # Determine if another human is within the infection radius
-        infection_radius = 2.0  # Define how close is 'close'
-        return float(np.linalg.norm(np.array(self.position) - np.array(other_human.position))) < infection_radius
-
-    def move(self, grid, height, width):
-        # Attempt to move the human to a black cell within the specified number of tries
-        for _ in range(100):  # Limit the number of tries to avoid infinite loops
-            # Randomly choose a direction to move
-            delta_x = np.random.randint(-1, 2)
-            delta_y = np.random.randint(-1, 2)
-
-            # Calculate the new position with wrap-around at edges
-            new_x = (self.position[0] + delta_x) % width
-            new_y = (self.position[1] + delta_y) % height
-
-            # Check if the new position is a black cell (value 0)
-            if grid[new_y, new_x] == 0:
-                # Update the position if the cell is black
-                self.position[0] = new_x
-                self.position[1] = new_y
-                return
-    def update(self, grid, movingHumanPopulation, deathrate, infection_probability):
-        became_immune = False
-        # Check for infection state and update infection timer
-        if self.state == 'I':
-            self.infection_timer += 1
-            if self.infection_timer > Human.MIN_DURATION_BEFORE_DEATH:
-                if np.random.rand() < deathrate:
-                    self.state = 'D'
-                elif np.random.rand() < self.immunity_prob:
-                    self.state = 'M'
-                    became_immune = True
-                else:
-            # Explicitly stating that the person remains infected
-                    self.state = 'I'
-
-        return became_immune
-
-
-
-class Human:
-
-    MIN_DURATION_BEFORE_DEATH = 21
-
-    def __init__(self, x, y, state='S'):
-        self.position = [x, y]
-        self.state = state
-        self.infection_timer = 0
-        self.immunity_prob=0.31
-        self.deathrate=1
-
-    def is_close_to(self, other_human):
-        infection_radius = 2.0  # Define how close is 'close'
-        return float(np.linalg.norm(np.array(self.position) - np.array(other_human.position))) < infection_radius
-
-    def update(self, grid, movingHumanPopulation, deathrate, infection_probability):
-        became_immune = False
-        # Check for infection state and update infection timer
-        if self.state == 'I':
-            self.infection_timer += 1
-            if self.infection_timer > Human.MIN_DURATION_BEFORE_DEATH:
-                if np.random.rand() < deathrate:
-                    self.state = 'D'
-                elif np.random.rand() < self.immunity_prob:
-                    self.state = 'M'
-                    became_immune = True
-                else:
-                    self.state ='I'
-
-
-        return became_immune
-
-
-
-
-if __name__ == '__main__':
-    # Simulation parameters
-    timeSteps = 200
-    t = 0
-    plotData = True
-
-    # Create an instance of the Model class
-    sim = Model()
-
-    # Initialize lists for storing simulation data
-    susceptible_counts = []
-    infected_counts = []
-    immune_counts = []
-    death_counts = []
-
-
-    # Open the file to write simulation data
-    file = open('simulation.csv', 'w')
-    file.write("Time,Susceptible,Infected,Immune,Dead\n")  # Include headers for the CSV file
-
-    # Pass the binary grid to Visualization
-    vis = covid_visualize.Visualization(sim.height, sim.width, sim.grid)
-
-    print('Starting simulation')
-    while t < timeSteps:
-        susceptible, infected, immune, dead = sim.update()
-        line = f"{t}, {susceptible}, {infected}, {dead}, {immune}\n"
-        file.write(line)
-
-        # Store the data for plotting
-        susceptible_counts.append(susceptible)
-        infected_counts.append(infected)
-        immune_counts.append(immune)
-        death_counts.append(dead)
-
-        vis.update(t, sim.movingHumanPopulation, sim.humanPopulation)
-        t += 1
-
-    file.close()
-    vis.persist()
-
-    if plotData:
-        # Plotting the data
-        plt.figure()
-        plt.plot(range(timeSteps), susceptible_counts, label='Susceptible')
-        plt.plot(range(timeSteps), infected_counts, label='Infected')
-        plt.plot(range(timeSteps), immune_counts, label='Immune')
-        plt.plot(range(timeSteps), death_counts, label='Dead')
-        plt.xlabel('Time (timesteps)')
-        plt.ylabel('Number of People')
-        plt.title('Trajectory of Infection and Recovery Over Time')
-        plt.legend()
-        plt.show()
