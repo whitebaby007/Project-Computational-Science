@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import covid_visualize
 import Human
-import Model
+import Classes.US_Model as US_Model
 import cv2
 from PIL import Image
 

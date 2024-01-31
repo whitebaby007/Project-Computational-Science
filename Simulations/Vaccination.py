@@ -3,7 +3,7 @@ import numpy as np
 from Classes import covid_visualize
 from Classes import Human
 from Classes import MovingHuman
-from Classes import Model
+from Classes import US_Model
 import cv2
 from PIL import Image
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     plotData = True
 
     # Create an instance of the Model class
-    sim = Model.Model()
+    sim = US_Model.Model()
 
     # Initialize lists for storing simulation data
     susceptible_counts = []
