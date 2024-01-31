@@ -118,7 +118,7 @@ class Model:
         for i, m in enumerate(self.movingHumanPopulation):
             m.move(self.grid, self.height, self.width)  # Moving humans move first
             
-            # Infection all non-moving humans
+            # Infect all non-moving humans
             if m.state == 'I':
                 for j, h in enumerate(self.humanPopulation):
                     if h.state == 'S' and m.is_close_to(h) and m.state == 'I':
