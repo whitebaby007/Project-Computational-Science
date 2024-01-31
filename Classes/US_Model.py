@@ -120,6 +120,8 @@ class Model:
             
             #apply vaccination 
             if m.vaccinated == 0:
+                if np.random.uniform() <= self.VaccinationRate_PerUpdate:
+                                h.state = 'I'
 
             # Infect non-moving humans
             if m.state == 'I':
