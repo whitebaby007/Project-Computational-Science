@@ -4,7 +4,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import matplotlib.patches as mpatches
-
+import matplotlib.pyplot as plt
+import numpy as np
+from Classes import Human
+from Classes import MovingHuman
+from Classes import US_Model
+import cv2
+from PIL import Image
 
 class Visualization:
     def __init__(self, height, width, image_grid, pauseTime=0.1):

@@ -1,3 +1,7 @@
+#import sys
+#sys.path.append('E:/Documents/VScode/UvA/Project-Computational-Science/Classes')
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 from Classes import covid_visualize
@@ -17,18 +21,20 @@ DEAD = 'D'
 
 if __name__ == '__main__':
     # Simulation parameters
-    timeSteps = 200
+    timeSteps = 100
     t = 0
     plotData = True
 
     # Create an instance of the Model class
-    sim = US_Model.Model()
+    sim = US_Model.Model(nHuman=750, nMovehuman=750, initHumanInfected=0.01, initMovehumanInfected=0.01,
+                 humanInfectionProb=0.75, VaccinationRate_PerUpdate = 0.1, InfectionProb_Vaccinated = 0.1, deathrate=0.05, immune=0.5,  image_path='US_Population.png')
 
     # Initialize lists for storing simulation data
     susceptible_counts = []
     infected_counts = []
     immune_counts = []
     death_counts = []
+    
 
 
     # Open the file to write simulation data

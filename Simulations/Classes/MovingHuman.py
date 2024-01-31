@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import covid_visualize
-import Human
-import Classes.US_Model as US_Model
+from Classes import covid_visualize
+from Classes import Human
+from Classes import US_Model
 import cv2
 from PIL import Image
 

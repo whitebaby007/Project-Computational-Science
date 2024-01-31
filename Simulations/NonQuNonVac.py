@@ -22,7 +22,8 @@ if __name__ == '__main__':
     plotData = True
 
     # Create an instance of the Model class
-    sim = US_Model.Model()
+    sim = US_Model.Model(nHuman=750, nMovehuman=750, initHumanInfected=0.01, initMovehumanInfected=0.01,
+                 humanInfectionProb=0.35, VaccinationRate_PerUpdate = 0.0, InfectionProb_Vaccinated = 0.35, deathrate=0.05, immune=0.95,  image_path='US_Population.png')
 
     # Initialize lists for storing simulation data
     susceptible_counts = []

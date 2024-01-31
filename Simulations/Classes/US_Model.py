@@ -1,18 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import covid_visualize
-import Human
-import MovingHuman
+from Classes import covid_visualize
+from Classes import Human
+from Classes import MovingHuman
 import cv2
 from PIL import Image
 
 class Model:
-    def __init__(self, width=90, height=60, nHuman=300, nMovehuman=300, initHumanInfected=0.1, initMovehumanInfected=0.1,
-                 humanInfectionProb=0.75, VaccinationRate_PerUpdate = 0.01, InfectionProb_Vaccinated = 0.4, deathrate=0.2, immune=0.5,  image_path='US_Population.png'):
+    def __init__(self, width=180, height=120, nHuman=300, nMovehuman=300, initHumanInfected=0.01, initMovehumanInfected=0.01,
+                 humanInfectionProb=0.75, VaccinationRate_PerUpdate = 0.0, InfectionProb_Vaccinated = 0.25, deathrate=0.05, immune=0.5,  image_path='US_Population.png'):
 
         # Process the image and create a binary grid
         original_image = Image.open('US_Population.png')
-        resized_image = original_image.copy().resize((90, 60))
+        resized_image = original_image.copy().resize((180, 120))
         gray_image = resized_image.convert('L')
         binary_image = gray_image.point(lambda x: 1 if x < 33 else 0, '1')
         self.grid = np.array(binary_image)
@@ -26,6 +26,7 @@ class Model:
         self.InfectionProb_Vaccinated = InfectionProb_Vaccinated
         self.deathrate = deathrate
         self.immunity_prob = immune
+        self.VaccinationRate_PerUpdate = VaccinationRate_PerUpdate
         
 
         self.immuneCount = 0  # Add this attribute to track the immune count
@@ -121,7 +122,7 @@ class Model:
             #apply vaccination 
             if m.vaccinated == 0:
                 if np.random.uniform() <= self.VaccinationRate_PerUpdate:
-                                h.state = 'I'
+                    m.vaccinated = 1
 
             # Infect non-moving humans
             if m.state == 'I':
@@ -171,6 +172,12 @@ class Model:
 
         #Iterate Non-moving human vaccination + infection
         for j, h in enumerate(self.humanPopulation):
+            
+            #apply vaccination 
+            if h.vaccinated == 0:
+                if np.random.uniform() <= self.VaccinationRate_PerUpdate:
+                    h.vaccinated = 1
+
 
             # Infect other non-moving humans                    
             if h.state == 'I':
