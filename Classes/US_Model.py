@@ -8,7 +8,7 @@ from PIL import Image
 
 class Model:
     def __init__(self, width=90, height=60, nHuman=300, nMovehuman=300, initHumanInfected=0.1, initMovehumanInfected=0.1,
-                 humanInfectionProb=0.75, InfectionProb_Vaccinated = 0.4, deathrate=0.2, immune=0.5,  image_path='US_Population.png'):
+                 humanInfectionProb=0.75, VaccinationRate_PerUpdate = 0.01, InfectionProb_Vaccinated = 0.4, deathrate=0.2, immune=0.5,  image_path='US_Population.png'):
 
         # Process the image and create a binary grid
         original_image = Image.open('US_Population.png')
@@ -114,27 +114,44 @@ class Model:
         # Set of occupied positions to ensure no overlap when placing new humans
         occupied_positions = set((h.position[0], h.position[1]) for h in self.humanPopulation + self.movingHumanPopulation)
         
-        #Start iteration for infection
+        #Iterate Movinghuman vaccination + infection
         for i, m in enumerate(self.movingHumanPopulation):
             m.move(self.grid, self.height, self.width)  # Moving humans move first
             
-            # Infect all non-moving humans
+            #apply vaccination 
+            if m.vaccinated == 0:
+
+            # Infect non-moving humans
             if m.state == 'I':
                 for j, h in enumerate(self.humanPopulation):
                     if h.state == 'S' and m.is_close_to(h) and m.state == 'I':
-                        if np.random.uniform() <= self.humanInfectionProb:
-                            h.state = 'I'
-                            new_infections += 1
+                        
+                        #check if other human is vaccinated
+                        if h.vaccinated == 1:
+                            if np.random.uniform() <= self.InfectionProb_Vaccinated:
+                                h.state = 'I'
+                                new_infections += 1
 
+                        else:
+                            if np.random.uniform() <= self.humanInfectionProb:
+                                h.state = 'I'
+                                new_infections += 1
 
-            # Check for infection against all other moving humans
+            # Infect other moving humans
             if m.state == 'I':
                 for k, other_m in enumerate(self.movingHumanPopulation):
                     if i != k and other_m.state == 'S' and m.is_close_to(other_m):
-                        if np.random.uniform() <= self.humanInfectionProb:
-                            other_m.state = 'I'
-                            new_infections += 1
+                        
+                        #check if other moving human is vaccinated
+                        if other_m.vaccinated == 1:
+                            if np.random.uniform() <= self.InfectionProb_Vaccinated:
+                                other_m.state = 'I'
+                                new_infections += 1
 
+                        else:
+                            if np.random.uniform() <= self.humanInfectionProb:
+                                other_m.state = 'I'
+                                new_infections += 1
 
             # Apply updates for this moving human (death or immunity)
             #Count Immunes
@@ -148,26 +165,48 @@ class Model:
                 new_deaths += 1
 
 
-        # Update for non-moving humans
+
+
+        #Iterate Non-moving human vaccination + infection
         for j, h in enumerate(self.humanPopulation):
+
+            # Infect other non-moving humans                    
             if h.state == 'I':
                 for k, other_h in enumerate(self.humanPopulation):
                     if j != k and other_h.state == 'S' and h.is_close_to(other_h):
-                        if np.random.uniform() <= self.humanInfectionProb:
-                            other_h.state = 'I'
-                            new_infections += 1
+
+                        if other_h.vaccinated == 1:
+                            if np.random.uniform() <= self.InfectionProb_Vaccinated:
+                                other_h.state = 'I'
+                                new_infections += 1
+
+                        else:
+                            if np.random.uniform() <= self.humanInfectionProb:
+                                other_h.state = 'I'
+                                new_infections += 1
 
 
-            # Check for infection against all moving humans
+            # Infect moving humans
             if h.state == 'I':
                 for k, other_m in enumerate(self.movingHumanPopulation):
                     if other_m.state == 'S' and h.is_close_to(other_m):
-                        if np.random.uniform() <= self.humanInfectionProb:
-                            other_m.state = 'I'
-                            new_infections += 1
+                        if other_m.vaccinated == 1:
+                            if np.random.uniform() <= self.InfectionProb_Vaccinated:
+                                other_m.state = 'I'
+                                new_infections += 1
+
+                        else:
+                            if np.random.uniform() <= self.humanInfectionProb:
+                                other_m.state = 'I'
+                                new_infections += 1
+
+
+            # Apply updates for this non-moving human (death or immunity)
+            #Count Immunes                    
             became_immune = h.update(self.grid, self.humanPopulation, self.deathrate, self.humanInfectionProb)
             if became_immune:
                 new_immunities += 1  # Increment the immune count if the individual became immune
+            
             # Replace deceased non-moving humans
             if h.state == 'D':
                 self.replace_deceased_human(j, self.humanPopulation, occupied_positions)

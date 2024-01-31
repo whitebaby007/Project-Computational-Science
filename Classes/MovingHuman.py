@@ -16,6 +16,7 @@ class MovingHuman:
         self.state = state  # 'S' for susceptible, 'I' for infected, 'M' for immune
         self.infection_timer = 0
         self.immunity_prob =0.31
+        self.vaccinated = 0
         
     def is_close_to(self, other_human):
         # Determine if another human is within the infection radius
@@ -39,6 +40,7 @@ class MovingHuman:
                 self.position[0] = new_x
                 self.position[1] = new_y
                 return
+            
     def update(self, grid, movingHumanPopulation, deathrate, infection_probability):
         became_immune = False
         # Check for infection state and update infection timer
