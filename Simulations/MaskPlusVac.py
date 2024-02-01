@@ -7,6 +7,14 @@ from Classes import US_Model
 import cv2
 from PIL import Image
 
+import matplotlib.pyplot as plt
+import numpy as np
+from Classes import covid_visualize
+from Classes import Human
+from Classes import MovingHuman
+from Classes import US_Model
+import cv2
+from PIL import Image
 
 
 SUSCEPTIBLE = 'S'
@@ -17,13 +25,13 @@ DEAD = 'D'
 
 if __name__ == '__main__':
     # Simulation parameters
-    timeSteps = 200
+    timeSteps = 150
     t = 0
     plotData = True
 
     # Create an instance of the Model class
-    sim = US_Model.Model(nHuman=750, nMovehuman=750, initHumanInfected=0.01, initMovehumanInfected=0.01,
-                 humanInfectionProb=0.35, VaccinationRate_PerUpdate = 0.0, InfectionProb_Vaccinated = 0.35, deathrate=0.05, immune=0.95,  image_path='US_Population.png')
+    sim = US_Model.Model(nHuman=350, nMovehuman=350, initHumanInfected=0.01, initMovehumanInfected=0.01,
+                 humanInfectionProb=0.15, VaccinationRate_PerUpdate = 0.008, InfectionProb_Vaccinated = 0.45, deathrate=0.0015, immune=0.9985,  image_path='US_Population.png')
 
     # Initialize lists for storing simulation data
     susceptible_counts = []
@@ -63,6 +71,15 @@ if __name__ == '__main__':
         plt.plot(range(timeSteps), susceptible_counts, label='Susceptible')
         plt.plot(range(timeSteps), infected_counts, label='Infected')
         plt.plot(range(timeSteps), immune_counts, label='Immune')
+        #plt.plot(range(timeSteps), death_counts, label='Dead')
+        plt.xlabel('Time (timesteps)')
+        plt.ylabel('Number of People')
+        plt.title('Trajectory of Infection and Recovery Over Time')
+        plt.legend()
+        plt.show()
+        print(f"susceptible_counts = {susceptible_counts}, infected_counts = {infected_counts}, immune_counts = {immune_counts}, death_counts = {death_counts} ")
+       
+        plt.figure()
         plt.plot(range(timeSteps), death_counts, label='Dead')
         plt.xlabel('Time (timesteps)')
         plt.ylabel('Number of People')

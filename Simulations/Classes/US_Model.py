@@ -7,12 +7,12 @@ import cv2
 from PIL import Image
 
 class Model:
-    def __init__(self, width=180, height=120, nHuman=300, nMovehuman=300, initHumanInfected=0.01, initMovehumanInfected=0.01,
-                 humanInfectionProb=0.75, VaccinationRate_PerUpdate = 0.0, InfectionProb_Vaccinated = 0.25, deathrate=0.05, immune=0.5,  image_path='US_Population.png'):
+    def __init__(self, width=90, height=60, nHuman=300, nMovehuman=300, initHumanInfected=0.01, initMovehumanInfected=0.01,
+                 humanInfectionProb=0.7, VaccinationRate_PerUpdate = 0.0, InfectionProb_Vaccinated = 0.5, deathrate=0.05, immune=0.5,  image_path='US_Population.png'):
 
         # Process the image and create a binary grid
         original_image = Image.open('US_Population.png')
-        resized_image = original_image.copy().resize((180, 120))
+        resized_image = original_image.copy().resize((90, 60))
         gray_image = resized_image.convert('L')
         binary_image = gray_image.point(lambda x: 1 if x < 33 else 0, '1')
         self.grid = np.array(binary_image)
@@ -89,6 +89,7 @@ class Model:
             while True:
                 x = np.random.randint(self.width)
                 y = np.random.randint(self.height)
+               
 
                 # Check if the chosen position is a black cell and not occupied
                 if (x, y) not in occupied_positions and self.grid[y, x] == 0:

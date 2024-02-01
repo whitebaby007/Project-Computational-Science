@@ -1,7 +1,3 @@
-#import sys
-#sys.path.append('E:/Documents/VScode/UvA/Project-Computational-Science/Classes')
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 from Classes import covid_visualize
@@ -10,7 +6,6 @@ from Classes import MovingHuman
 from Classes import US_Model
 import cv2
 from PIL import Image
-
 
 
 SUSCEPTIBLE = 'S'
@@ -27,14 +22,13 @@ if __name__ == '__main__':
 
     # Create an instance of the Model class
     sim = US_Model.Model(nHuman=350, nMovehuman=350, initHumanInfected=0.01, initMovehumanInfected=0.01,
-                 humanInfectionProb=0.9, VaccinationRate_PerUpdate = 0.008, InfectionProb_Vaccinated = 0.45, deathrate=0.0015, immune=0.9985,  image_path='US_Population.png')
+                 humanInfectionProb=0.3, VaccinationRate_PerUpdate = 0.0, InfectionProb_Vaccinated = 0.45, deathrate=0.005, immune=0.995,  image_path='US_Population.png')
 
     # Initialize lists for storing simulation data
     susceptible_counts = []
     infected_counts = []
     immune_counts = []
     death_counts = []
-    
 
 
     # Open the file to write simulation data

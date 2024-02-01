@@ -34,6 +34,8 @@ class MovingHuman:
             new_x = (self.position[0] + delta_x) % width
             new_y = (self.position[1] + delta_y) % height
 
+
+
             # Check if the new position is a black cell (value 0)
             if grid[new_y, new_x] == 0:
                 # Update the position if the cell is black
