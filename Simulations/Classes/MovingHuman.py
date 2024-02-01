@@ -24,7 +24,6 @@ class MovingHuman:
         return float(np.linalg.norm(np.array(self.position) - np.array(other_human.position))) < infection_radius
 
     def move(self, grid, height, width):
-        # Attempt to move the human to a black cell within the specified number of tries
         for _ in range(100):  # Limit the number of tries to avoid infinite loops
             # Randomly choose a direction to move
             delta_x = np.random.randint(-1, 2)
