@@ -37,7 +37,6 @@ class Model:
         self.deathCountsOverTime = []
 
         # Population setters
-        # Make a data structure in this case a list with the humans and moving humans.
         self.humanPopulation = self.set_human_population(initHumanInfected)
         self.movingHumanPopulation = self.set_moving_human_population(initMovehumanInfected)
 
@@ -230,12 +229,9 @@ class Model:
 
 
 
-        # Since you're removing the dead, you don't need to count 'D' states at each step.
-        # The deathCount variable should already be incrementing properly in your code when someone dies.
-
+        
         self.susceptibleCount = total_susceptible
         self.infectedCount = total_infected
-        # self.deathCount is already updated elsewhere in your code whenever someone dies
         self.immuneCount = total_immune
 
 
